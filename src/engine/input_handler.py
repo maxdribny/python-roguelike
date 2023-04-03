@@ -14,11 +14,13 @@ class EventHandler(tcod.event.EventDispatch[Action]):
         raise SystemExit()
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+
         action: Optional[Action] = None
 
         key = event.sym
 
         if key == tcod.event.K_UP:
+            print("UP")
             action = MovementAction(dx=0, dy=-1)
         elif key == tcod.event.K_DOWN:
             action = MovementAction(dx=0, dy=1)
@@ -26,10 +28,8 @@ class EventHandler(tcod.event.EventDispatch[Action]):
             action = MovementAction(dx=-1, dy=0)
         elif key == tcod.event.K_RIGHT:
             action = MovementAction(dx=1, dy=0)
-        elif key == tcod.event.K_ESCAPE:
-            action = EscapeAction()
 
-        # Add support for WASD movement
+            # Add support for WASD movement
         elif key == tcod.event.K_w:
             action = MovementAction(dx=0, dy=-1)
         elif key == tcod.event.K_s:
@@ -38,5 +38,8 @@ class EventHandler(tcod.event.EventDispatch[Action]):
             action = MovementAction(dx=-1, dy=0)
         elif key == tcod.event.K_d:
             action = MovementAction(dx=1, dy=0)
+
+        elif key == tcod.event.K_ESCAPE:
+            action = EscapeAction()
 
         return action

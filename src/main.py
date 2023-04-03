@@ -1,9 +1,9 @@
 import tcod
 
-from actions.actions import EscapeAction, MovementAction
+from actions.actions import MovementAction, EscapeAction
 from engine.input_handler import EventHandler
 
-RESOURCE_PATH = "assets\\"
+RESOURCE_PATH = "..\\assets\\"
 
 
 def main():
