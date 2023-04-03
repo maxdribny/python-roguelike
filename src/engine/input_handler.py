@@ -5,8 +5,8 @@ The input handler file.
 from typing import Optional
 
 import tcod.event
-
-from src.actions.actions import Action, MovementAction, EscapeAction
+# noinspection PyUnresolvedReferences
+from commands.actions import Action, MovementAction, EscapeAction
 
 
 class EventHandler(tcod.event.EventDispatch[Action]):

@@ -1,6 +1,6 @@
 import tcod
 
-from actions.actions import MovementAction, EscapeAction
+from commands.actions import MovementAction, EscapeAction
 from engine.input_handler import EventHandler
 
 RESOURCE_PATH = "..\\assets\\"
