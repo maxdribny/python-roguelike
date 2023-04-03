@@ -29,4 +29,14 @@ class EventHandler(tcod.event.EventDispatch[Action]):
         elif key == tcod.event.K_ESCAPE:
             action = EscapeAction()
 
+        # Add support for WASD movement
+        elif key == tcod.event.K_w:
+            action = MovementAction(dx=0, dy=-1)
+        elif key == tcod.event.K_s:
+            action = MovementAction(dx=0, dy=1)
+        elif key == tcod.event.K_a:
+            action = MovementAction(dx=-1, dy=0)
+        elif key == tcod.event.K_d:
+            action = MovementAction(dx=1, dy=0)
+
         return action
