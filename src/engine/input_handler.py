@@ -5,8 +5,9 @@ The input handler file.
 from typing import Optional
 
 import tcod.event
+
 # noinspection PyUnresolvedReferences
-from commands.actions import Action, MovementAction, EscapeAction
+from commands.actions import Action, MovementAction, EscapeAction, UndoAction
 
 
 class EventHandler(tcod.event.EventDispatch[Action]):
@@ -38,6 +39,9 @@ class EventHandler(tcod.event.EventDispatch[Action]):
             action = MovementAction(dx=-1, dy=0)
         elif key == tcod.event.K_d:
             action = MovementAction(dx=1, dy=0)
+
+        elif key == tcod.event.K_z:
+            action = UndoAction()
 
         elif key == tcod.event.K_ESCAPE:
             action = EscapeAction()

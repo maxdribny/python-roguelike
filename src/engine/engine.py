@@ -2,7 +2,7 @@
 Author: Maxim Dribny
 """
 
-from typing import Set, Iterable, Any
+from typing import Set, Iterable, Any, List
 
 from tcod.console import Console
 from tcod.context import Context
@@ -23,6 +23,7 @@ class Engine:
         self.event_handler = event_handler
         self.game_map = game_map
         self.player = player
+        self.action_stack: List[Action] = []
 
     def handle_events(self, events: Iterable[Any]) -> None:
         """
@@ -38,6 +39,19 @@ class Engine:
                 continue
 
             action.perform(self, self.player)
+            if action.record_in_history:
+                self.action_stack.append(action)  # Add the action to the action stack
+
+    def undo_last_action(self) -> None:
+        """
+        Undo the last action performed by the player.
+        :return: None
+        """
+        if not self.action_stack:
+            return
+
+        last_action = self.action_stack.pop()
+        last_action.undo(self, self.player)
 
     def render(self, console: Console, context: Context) -> None:
         """
