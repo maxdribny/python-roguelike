@@ -7,6 +7,7 @@ from typing import Set, Iterable, Any, List
 from tcod.console import Console
 from tcod.context import Context
 
+from commands.actions import Action
 from engine.game_map import GameMap
 # noinspection PyUnresolvedReferences
 from engine.input_handler import EventHandler
@@ -41,6 +42,10 @@ class Engine:
             action.perform(self, self.player)
             if action.record_in_history:
                 self.action_stack.append(action)  # Add the action to the action stack
+                print(f"Action stack size: {len(self.action_stack)}")
+                # Limit the undo stack size to 32 actions
+                if len(self.action_stack) > 32:
+                    self.action_stack.pop(0)
 
     def undo_last_action(self) -> None:
         """
@@ -51,6 +56,7 @@ class Engine:
             return
 
         last_action = self.action_stack.pop()
+        print(f"Action stack size: {len(self.action_stack)}")
         last_action.undo(self, self.player)
 
     def render(self, console: Console, context: Context) -> None:

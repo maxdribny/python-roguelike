@@ -36,7 +36,6 @@ class Action:
         Undo the action by restoring the entity to the state it was in before the action was performed.
         :param engine: Engine The scope of this action.
         :param entity: Entity The entity to restore the state of.
-        :param state: dict The state to restore the entity to.
 
         :return: None
         """
