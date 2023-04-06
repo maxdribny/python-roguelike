@@ -41,7 +41,21 @@ class RectangularRoom:
 def tunnel_between(
         start: Tuple[int, int], end: Tuple[int, int]
 ) -> Iterator[Tuple[int, int]]:
-    """Return an L-shaped tunnel between these two points."""
+    """
+    Return an L-shaped tunnel between the start and end points.
+
+    Args:
+        start (Tuple[int, int]): The starting point of the tunnel.
+        end (Tuple[int, int]): The ending point of the tunnel.
+
+    Returns:
+        Iterator[Tuple[int, int]]: A generator that yields the x, y coordinates of each point along the tunnel path.
+
+    Note:
+        This function generates an L-shaped tunnel that starts either horizontally or vertically, and then proceeds in
+        the other direction to reach the end point. The exact path of the tunnel is randomly determined. The tunnel is
+        created using the Bresenham line algorithm from the python-tcod library.
+    """
     x1, y1, = start
     x2, y2, = end
 
