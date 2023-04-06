@@ -52,6 +52,7 @@ class Engine:
         Undo the last action performed by the player.
         :return: None
         """
+
         if not self.action_stack:
             return
 
