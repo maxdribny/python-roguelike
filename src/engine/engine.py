@@ -2,11 +2,12 @@
 Author: Maxim Dribny
 """
 
-from typing import Set, Iterable, Any
+from typing import Set, Iterable, Any, List
 
 from tcod.console import Console
 from tcod.context import Context
 
+from commands.actions import Action
 from engine.game_map import GameMap
 # noinspection PyUnresolvedReferences
 from engine.input_handler import EventHandler
@@ -23,6 +24,7 @@ class Engine:
         self.event_handler = event_handler
         self.game_map = game_map
         self.player = player
+        self.action_stack: List[Action] = []
 
     def handle_events(self, events: Iterable[Any]) -> None:
         """
@@ -38,6 +40,24 @@ class Engine:
                 continue
 
             action.perform(self, self.player)
+            if action.record_in_history:
+                self.action_stack.append(action)  # Add the action to the action stack
+                print(f"Action stack size: {len(self.action_stack)}")
+                # Limit the undo stack size to 32 actions
+                if len(self.action_stack) > 32:
+                    self.action_stack.pop(0)
+
+    def undo_last_action(self) -> None:
+        """
+        Undo the last action performed by the player.
+        :return: None
+        """
+        if not self.action_stack:
+            return
+
+        last_action = self.action_stack.pop()
+        print(f"Action stack size: {len(self.action_stack)}")
+        last_action.undo(self, self.player)
 
     def render(self, console: Console, context: Context) -> None:
         """

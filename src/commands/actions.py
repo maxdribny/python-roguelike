@@ -1,3 +1,7 @@
+"""
+Copyright: 2023.
+"""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -12,6 +16,9 @@ class Action:
     An action is a command that can be performed by an entity.
     """
 
+    def __init__(self):
+        self.record_in_history = True
+
     def perform(self, engine: Engine, entity: Entity) -> None:
         """
         Perform this action with the objects needed to determine its scope.
@@ -21,7 +28,46 @@ class Action:
 
         :return: None
         """
+        self.prev_state = self.save_state(entity)  # Save the state before performing the action.
         raise NotImplementedError()
+
+    def undo(self, engine: Engine, entity: Entity) -> None:
+        """
+        Undo the action by restoring the entity to the state it was in before the action was performed.
+        :param engine: Engine The scope of this action.
+        :param entity: Entity The entity to restore the state of.
+
+        :return: None
+        """
+        raise NotImplementedError()
+
+    def save_state(self, entity: Entity) -> dict:
+        """
+        Save the state of the entity before performing the action.
+        :param entity: Entity The entity to save the state of.
+
+        :return: dict The state of the entity.
+        """
+        return {
+            "x": entity.x,
+            "y": entity.y,
+        }
+
+
+class UndoAction(Action):
+    """
+    An action to undo the last action performed by the player.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.record_in_history = False
+
+    def perform(self, engine: Engine, entity: Entity) -> None:
+        engine.undo_last_action()
+
+    def undo(self, engine: Engine, entity: Entity) -> None:
+        pass
 
 
 class EscapeAction(Action):
@@ -44,6 +90,9 @@ class MovementAction(Action):
         self.dy = dy
 
     def perform(self, engine: Engine, entity: Entity) -> None:
+        # Save the state before performing the action.
+        prev_state = self.save_state(entity)
+
         dest_x = entity.x + self.dx
         dest_y = entity.y + self.dy
 
@@ -54,3 +103,11 @@ class MovementAction(Action):
 
         # Otherwise move
         entity.move(self.dx, self.dy)
+
+        # Store the previous state in the entity.
+        self.prev_state = prev_state
+
+    def undo(self, engine: Engine, entity: Entity) -> None:
+        # Restore the entity to the state it was in before the action was performed.
+        entity.x = self.prev_state["x"]
+        entity.y = self.prev_state["y"]
