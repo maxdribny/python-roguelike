@@ -9,7 +9,7 @@ from typing import Tuple
 
 import numpy as np
 
-# Tiles graphics structured type compatible with Console.tiles_rgb
+# Tiles graphics structured type compatible with Console.rgb
 graphic_dt = np.dtype(
     [
         ("ch", np.int32),  # Unicode codepoint
@@ -30,8 +30,8 @@ tile_dt = np.dtype(
 
 def new_tile(
         *,  # Enforce the use of keywords, so that parameter order doesn't matter
-        walkable: int,
-        transparent: int,
+        walkable: bool,
+        transparent: bool,
         dark: Tuple[int, Tuple[int, int, int], Tuple[int, int, int]],
 ) -> np.ndarray:
     """
@@ -52,7 +52,8 @@ def new_tile(
 
     :keyword walkable: The walk ability of the tile (True or False).
     :keyword transparent: The transparency of the tile (True or False).
-    :keyword dark: A tuple containing the Unicode codepoint of the tile's
+    :keyword dark: A tuple containing the Unicode codepoint of the tile's character,
+    the foreground color as an RGB tuple, and the background color as an RGB tuple.
 
     :return: A NumPy array containing the tile data.
     """

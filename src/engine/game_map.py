@@ -52,4 +52,4 @@ class GameMap:
         Returns:
             None
         """
-        console.tiles_rgb[0:self.width, 0:self.height] = self.tiles["dark"]
+        console.rgb[0:self.width, 0:self.height] = self.tiles["dark"]
