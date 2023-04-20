@@ -40,6 +40,11 @@ class Engine:
                 continue
 
             action.perform(self, self.player)
+
+            # --------------------------------------------------------------------
+            # The below is code which was added as functionality to allow the player to undo their last action.
+            # This is a very basic implementation of undo functionality.
+            # --------------------------------------------------------------------
             if action.record_in_history:
                 self.action_stack.append(action)  # Add the action to the action stack
                 print(f"Action stack size: {len(self.action_stack)}")

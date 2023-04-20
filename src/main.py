@@ -26,6 +26,8 @@ def main():
         f"{RESOURCE_PATH}dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD
     )
 
+    # Create an event handler which will be used by the engine to handle the events of the game
+
     event_handler = EventHandler()
 
     # Added support for entities instead of hard coded player
@@ -34,8 +36,11 @@ def main():
     npc = Entity(int(screen_width / 2 - 5), int(screen_height / 2), "@", (255, 255, 0))
     entities = {npc, player}
 
+    # Generate a dungeon map
+    
     game_map = generate_dungeon(map_width, map_height)
 
+    # Create the engine that will handle the core game loop
     engine = Engine(entities=entities, event_handler=event_handler, game_map=game_map, player=player)
 
     with tcod.context.new_terminal(
