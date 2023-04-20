@@ -1,6 +1,6 @@
 import tcod
 
-from engine.dungeongen import generate_dungeon
+from engine.dungeon_gen import generate_dungeon
 from engine.engine import Engine
 from engine.input_handler import EventHandler
 from entities.entity import Entity
@@ -37,7 +37,7 @@ def main():
     entities = {npc, player}
 
     # Generate a dungeon map
-    
+
     game_map = generate_dungeon(map_width, map_height)
 
     # Create the engine that will handle the core game loop
