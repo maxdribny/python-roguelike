@@ -66,9 +66,12 @@ def tunnel_between(
         # Move vertically, then horizontally.
         corner_x, corner_y = x1, y2
 
-    # Generate the coordinates for this tunnel.
+    # Generate the coordinates for this tunnel - ignore the warnings it works.
+
+    # noinspection PyTypeChecker
     for x, y in tcod.los.bresenham((x1, y1), (corner_x, corner_y)).tolist():
         yield x, y
+    # noinspection PyTypeChecker
     for x, y in tcod.los.bresenham((corner_x, corner_y), (x2, y2)).tolist():
         yield x, y
 

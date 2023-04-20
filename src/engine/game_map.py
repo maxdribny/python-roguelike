@@ -42,7 +42,7 @@ class GameMap:
         """
         return 0 <= x < self.width and 0 <= y < self.height
 
-    def render(self, console: tcod.Console) -> None:
+    def render(self, console: Console) -> None:
         """
         Renders the map onto the given console.
 
