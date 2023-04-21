@@ -18,12 +18,13 @@ graphic_dt = np.dtype(
     ]
 )
 
-# Tile struct used for statically defined tile data.
+# Tile struct / datatype used for statically defined tile data.
 tile_dt = np.dtype(
     [
         ("walkable", np.bool_),  # True if this tile can be walked over
         ("transparent", np.bool_),  # True if this tile doesn't block FOV
         ("dark", graphic_dt),  # Graphics for when this tile is not in FOV
+        ("light", graphic_dt),  # Graphics for when this tile is in FOV
     ]
 )
 
@@ -33,6 +34,7 @@ def new_tile(
         walkable: bool,
         transparent: bool,
         dark: Tuple[int, Tuple[int, int, int], Tuple[int, int, int]],
+        light: Tuple[int, Tuple[int, int, int], Tuple[int, int, int]],
 ) -> np.ndarray:
     """
     Create a new tile with the specified properties.
@@ -57,8 +59,12 @@ def new_tile(
 
     :return: A NumPy array containing the tile data.
     """
-    return np.array((walkable, transparent, dark), dtype=tile_dt)
 
+    return np.array((walkable, transparent, dark, light), dtype=tile_dt)
+
+
+# SHROUD represents unexplored, unseen tiles.
+SHROUD = np.array((ord(" "), (255, 255, 255), (0, 0, 0)), dtype=graphic_dt)
 
 # ------------------------------------------------------------
 # TYPES OF TILES:
@@ -67,9 +73,15 @@ def new_tile(
 # ------------------------------------------------------------
 
 floor = new_tile(
-    walkable=True, transparent=True, dark=(ord(" "), (255, 255, 255), (50, 50, 150))
+    walkable=True,
+    transparent=True,
+    dark=(ord(" "), (255, 255, 255), (50, 50, 150)),
+    light=(ord(" "), (255, 255, 255), (200, 180, 50)),
 )
 
 wall = new_tile(
-    walkable=False, transparent=False, dark=(ord(" "), (255, 255, 255), (0, 0, 100))
+    walkable=False,
+    transparent=False,
+    dark=(ord(" "), (255, 255, 255), (0, 0, 100)),
+    light=(ord(" "), (255, 255, 255), (130, 110, 50)),
 )

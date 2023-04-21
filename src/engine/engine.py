@@ -6,6 +6,7 @@ from typing import Set, Iterable, Any, List
 
 from tcod.console import Console
 from tcod.context import Context
+from tcod.map import compute_fov
 
 from commands.actions import Action
 from engine.game_map import GameMap
@@ -24,6 +25,7 @@ class Engine:
         self.event_handler = event_handler
         self.game_map = game_map
         self.player = player
+        self.update_fov()
         self.action_stack: List[Action] = []
 
     def handle_events(self, events: Iterable[Any]) -> None:
@@ -40,6 +42,7 @@ class Engine:
                 continue
 
             action.perform(self, self.player)
+            self.update_fov()
 
             # --------------------------------------------------------------------
             # The below is code which was added as functionality to allow the player to undo their last action.
@@ -76,8 +79,20 @@ class Engine:
         self.game_map.render(console)
 
         for entity in self.entities:
-            console.print(x=entity.x, y=entity.y, string=entity.char, fg=entity.color)
+            # Only render entities that are in the visible area.
+            if self.game_map.visible[entity.x, entity.y]:
+                console.print(x=entity.x, y=entity.y, string=entity.char, fg=entity.color)
 
         context.present(console)
 
         console.clear()
+
+    def update_fov(self):
+        """Recompute the visible area based on the players point of view."""
+        self.game_map.visible[:] = compute_fov(
+            self.game_map.tiles["transparent"],
+            (self.player.x, self.player.y),
+            radius=8,
+        )
+        # If a tile is "visible" it should be added to "explored".
+        self.game_map.explored |= self.game_map.visible
