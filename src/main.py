@@ -1,9 +1,11 @@
+import copy
+
 import tcod
 
 from engine.dungeon_gen import generate_dungeon
 from engine.engine import Engine
 from engine.input_handler import EventHandler
-from entities.entity import Entity
+from entities import entity_factories
 
 RESOURCE_PATH = "..\\assets\\"
 
@@ -29,6 +31,8 @@ def main():
     room_min_size = 6
     max_rooms = 30
 
+    max_monsters_per_room = 2
+
     # endregion
 
     # region Tile set and Graphics Options
@@ -43,9 +47,9 @@ def main():
     event_handler = EventHandler()
 
     # Added support for entities instead of hard coded player and npc
-    player = Entity(int(screen_width / 2), int(screen_height / 2), "@", (255, 255, 255))
-    npc = Entity(int(screen_width / 2 - 5), int(screen_height / 2), "@", (255, 255, 0))
-    entities = {npc, player}
+    player = copy.deepcopy(entity_factories.player)
+
+    entities = {player}
 
     # Generate a dungeon map
     game_map = generate_dungeon(
@@ -54,11 +58,12 @@ def main():
         room_max_size=room_max_size,
         map_width=map_width,
         map_height=map_height,
+        max_monsters_per_room=max_monsters_per_room,
         player=player
     )
 
     # Create the engine that will handle the core game loop
-    engine = Engine(entities=entities, event_handler=event_handler, game_map=game_map, player=player)
+    engine = Engine(event_handler=event_handler, game_map=game_map, player=player)
 
     with tcod.context.new_terminal(
             screen_width,

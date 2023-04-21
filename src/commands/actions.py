@@ -15,6 +15,7 @@ class Action:
     """
     An action is a command that can be performed by an entity.
     """
+    prev_state: dict
 
     def __init__(self):
         self.record_in_history = True
@@ -54,6 +55,69 @@ class Action:
         }
 
 
+class ActionWithDirection(Action):
+    def __init__(self, dx: int, dy: int):
+        super().__init__()
+
+        self.dx = dx
+        self.dy = dy
+
+    def perform(self, engine: Engine, entity: Entity) -> None:
+        raise NotImplementedError()
+
+
+class MeleeAction(ActionWithDirection):
+    def perform(self, engine: Engine, entity: Entity) -> None:
+        dest_x = entity.x + self.dx
+        dest_y = entity.y + self.dy
+        target = engine.game_map.get_blocking_entity_at_location(dest_x, dest_y)
+        if not target:
+            return  # No entity to attack
+        print(f"You kick the {target.name} in the balls!")
+
+
+class MovementAction(ActionWithDirection):
+    """
+    An action to move an entity.
+    """
+
+    def perform(self, engine: Engine, entity: Entity) -> None:
+        # Save the state before performing the action.
+        prev_state = self.save_state(entity)
+
+        dest_x = entity.x + self.dx
+        dest_y = entity.y + self.dy
+
+        if not engine.game_map.in_bounds(dest_x, dest_y):
+            return  # Destination out of bounds.
+        if not engine.game_map.tiles["walkable"][dest_x, dest_y]:
+            return  # Destination is blocked by a tile.
+        if engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
+            return  # Destination is blocked by an entity.
+
+        # Otherwise move
+        entity.move(self.dx, self.dy)
+
+        # Store the previous state in the entity.
+        self.prev_state = prev_state
+
+    def undo(self, engine: Engine, entity: Entity) -> None:
+        # Restore the entity to the state it was in before the action was performed.
+        entity.x = self.prev_state["x"]
+        entity.y = self.prev_state["y"]
+
+
+class BumpAction(ActionWithDirection):
+    def perform(self, engine: Engine, entity: Entity) -> None:
+        dest_x = entity.x + self.dx
+        dest_y = entity.y + self.dy
+
+        if engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
+            return MeleeAction(self.dx, self.dy).perform(engine, entity)
+        else:
+            return MovementAction(self.dx, self.dy).perform(engine, entity)
+
+
 class UndoAction(Action):
     """
     An action to undo the last action performed by the player.
@@ -77,37 +141,3 @@ class EscapeAction(Action):
 
     def perform(self, engine: Engine, entity: Entity) -> None:
         raise SystemExit()
-
-
-class MovementAction(Action):
-    """
-    An action to move an entity.
-    """
-
-    def __init__(self, dx: int, dy: int):
-        super().__init__()
-        self.dx = dx
-        self.dy = dy
-
-    def perform(self, engine: Engine, entity: Entity) -> None:
-        # Save the state before performing the action.
-        prev_state = self.save_state(entity)
-
-        dest_x = entity.x + self.dx
-        dest_y = entity.y + self.dy
-
-        if not engine.game_map.in_bounds(dest_x, dest_y):
-            return  # Destination out of bounds.
-        if not engine.game_map.tiles["walkable"][dest_x, dest_y]:
-            return  # Destination is blocked by a tile.
-
-        # Otherwise move
-        entity.move(self.dx, self.dy)
-
-        # Store the previous state in the entity.
-        self.prev_state = prev_state
-
-    def undo(self, engine: Engine, entity: Entity) -> None:
-        # Restore the entity to the state it was in before the action was performed.
-        entity.x = self.prev_state["x"]
-        entity.y = self.prev_state["y"]

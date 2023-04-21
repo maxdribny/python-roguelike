@@ -7,6 +7,7 @@ import tcod
 
 from engine import tile_types
 from engine.game_map import GameMap
+from entities import entity_factories
 
 if TYPE_CHECKING:
     from entities.entity import Entity
@@ -94,7 +95,42 @@ def tunnel_between(
         yield x, y
 
 
-def generate_dungeon(max_rooms: int, room_min_size: int, room_max_size: int, map_width: int, map_height: int,
+def place_entities(room: RectangularRoom, dungeon: GameMap, max_monsters: int) -> None:
+    """
+    Place entities in a room.
+
+    Args:
+        room (RectangularRoom): The room in which to place entities.
+        dungeon (GameMap): The dungeon map.
+        max_monsters (int): The maximum number of monsters to place in the room.
+
+    Note:
+        This function randomly places monsters in the room. The number of monsters is determined by the 'max_monsters'
+        parameter. The function ensures that the monsters are not placed on top of each other.
+
+    Examples:
+        >> place_entities(room, dungeon, max_monsters_per_room)
+    """
+
+    number_of_monsters = random.randint(0, max_monsters)
+
+    for i in range(number_of_monsters):
+        x = random.randint(room.x1 + 1, room.x2 - 1)
+        y = random.randint(room.y1 + 1, room.y2 - 1)
+
+        if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
+            if random.random() < 0.8:
+                entity_factories.orc.spawn(dungeon, x, y)
+            else:
+                entity_factories.troll.spawn(dungeon, x, y)
+
+
+def generate_dungeon(max_rooms: int,
+                     room_min_size: int,
+                     room_max_size: int,
+                     map_width: int,
+                     map_height: int,
+                     max_monsters_per_room,
                      player: Entity) -> GameMap:
     """
     Generate a new dungeon map with randomly placed rectangular rooms and tunnels connecting them.
@@ -109,7 +145,9 @@ def generate_dungeon(max_rooms: int, room_min_size: int, room_max_size: int, map
         room_max_size (int): The maximum size (width and height) of a room.
         map_width (int): The width of the dungeon map.
         map_height (int): The height of the dungeon map.
+        max_monsters_per_room (int): The maximum number of monsters that can be placed in a room.
         player (Entity): The player entity, whose position will be updated with the starting location.
+
 
     Returns:
         GameMap: The generated dungeon map with rooms and tunnels.
@@ -132,7 +170,7 @@ def generate_dungeon(max_rooms: int, room_min_size: int, room_max_size: int, map
     if room_max_size < room_min_size:
         raise ValueError("Maximum room size must be greater than or equal to minimum room size.")
 
-    dungeon = GameMap(map_width, map_height)
+    dungeon = GameMap(map_width, map_height, entities=[player])
 
     rooms: List[RectangularRoom] = []
 
@@ -165,6 +203,9 @@ def generate_dungeon(max_rooms: int, room_min_size: int, room_max_size: int, map
             # Dig a tunnel between this room and the previous one.
             for x, y in tunnel_between(rooms[-1].center, new_room.center):
                 dungeon.tiles[x, y] = tile_types.floor
+
+        # Place monsters in the room.
+        place_entities(new_room, dungeon, max_monsters_per_room)
 
         # Finally, append the new room to the list.
         rooms.append(new_room)

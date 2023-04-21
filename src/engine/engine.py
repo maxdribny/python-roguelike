@@ -2,7 +2,7 @@
 Author: Maxim Dribny
 """
 
-from typing import Set, Iterable, Any, List
+from typing import Iterable, Any, List
 
 from tcod.console import Console
 from tcod.context import Context
@@ -20,13 +20,16 @@ class Engine:
     The engine is the main class of the game.
     """
 
-    def __init__(self, entities: Set[Entity], event_handler: EventHandler, game_map: GameMap, player: Entity):
-        self.entities = entities
+    def __init__(self, event_handler: EventHandler, game_map: GameMap, player: Entity):
         self.event_handler = event_handler
         self.game_map = game_map
         self.player = player
         self.update_fov()
         self.action_stack: List[Action] = []
+
+    def handle_enemy_turns(self) -> None:
+        for entity in self.game_map.entities - {self.player}:
+            print(f"The {entity.name} wonders when it will get to take a real turn.")
 
     def handle_events(self, events: Iterable[Any]) -> None:
         """
@@ -50,9 +53,10 @@ class Engine:
             # --------------------------------------------------------------------
             if action.record_in_history:
                 self.action_stack.append(action)  # Add the action to the action stack
-                print(f"Action stack size: {len(self.action_stack)}")
+                if not len(self.action_stack) <= 32 + 1:
+                    print(f"Action stack size: {len(self.action_stack)}")
                 # Limit the undo stack size to 32 actions
-                if len(self.action_stack) > 32:
+                if len(self.action_stack) >= 32:
                     self.action_stack.pop(0)
 
     def undo_last_action(self) -> None:
@@ -77,11 +81,6 @@ class Engine:
         :return: None
         """
         self.game_map.render(console)
-
-        for entity in self.entities:
-            # Only render entities that are in the visible area.
-            if self.game_map.visible[entity.x, entity.y]:
-                console.print(x=entity.x, y=entity.y, string=entity.char, fg=entity.color)
 
         context.present(console)
 
