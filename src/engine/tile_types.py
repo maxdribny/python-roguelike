@@ -60,6 +60,12 @@ def new_tile(
     return np.array((walkable, transparent, dark), dtype=tile_dt)
 
 
+# ------------------------------------------------------------
+# TYPES OF TILES:
+# Floor: Walkable: True, Transparent: True, Dark: No Character, White Foreground, Blue Background
+# Wall: Walkable: False, Transparent: False, Dark: No Character, White Foreground, Dark Blue Background
+# ------------------------------------------------------------
+
 floor = new_tile(
     walkable=True, transparent=True, dark=(ord(" "), (255, 255, 255), (50, 50, 150))
 )

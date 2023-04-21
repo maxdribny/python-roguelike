@@ -1,10 +1,15 @@
+from __future__ import annotations
+
 import random
-from typing import Iterator, Tuple
+from typing import Iterator, List, Tuple, TYPE_CHECKING
 
 import tcod
 
 from engine import tile_types
 from engine.game_map import GameMap
+
+if TYPE_CHECKING:
+    from entities.entity import Entity
 
 
 class RectangularRoom:
@@ -36,6 +41,19 @@ class RectangularRoom:
         :return: Tuple[slice, slice] The inner area of this room.
         """
         return slice(self.x1 + 1, self.x2), slice(self.y1 + 1, self.y2)
+
+    def intersects(self, other: RectangularRoom) -> bool:
+        """
+        Return True if this room overlaps with another RectangularRoom.
+        :param other:
+        :return: bool: True if the other room overlaps with this one, False otherwise.
+        """
+        return (
+                self.x1 <= other.x2
+                and self.x2 >= other.x1
+                and self.y1 <= other.y2
+                and self.y2 >= other.y1
+        )
 
 
 def tunnel_between(
@@ -76,22 +94,79 @@ def tunnel_between(
         yield x, y
 
 
-def generate_dungeon(map_width, map_height) -> GameMap:
+def generate_dungeon(max_rooms: int, room_min_size: int, room_max_size: int, map_width: int, map_height: int,
+                     player: Entity) -> GameMap:
     """
-    Generate a new dungeon map.
-    :param map_width: int The width of the map.
-    :param map_height: int The height of the map.
-    :return: GameMap The generated dungeon map.
+    Generate a new dungeon map with randomly placed rectangular rooms and tunnels connecting them.
+
+    The function creates a 'GameMap' instance and populates it with 'RectangularRoom' instances. It ensures that the
+    rooms do not intersect and connects them with tunnels. The player's starting position is set to the center of the
+    first room.
+
+    Args:
+        max_rooms (int): The maximum number of rooms to generate.
+        room_min_size (int): The minimum size (width and height) of a room.
+        room_max_size (int): The maximum size (width and height) of a room.
+        map_width (int): The width of the dungeon map.
+        map_height (int): The height of the dungeon map.
+        player (Entity): The player entity, whose position will be updated with the starting location.
+
+    Returns:
+        GameMap: The generated dungeon map with rooms and tunnels.
+
+    Raises:
+        ValueError: If the maximum number of rooms is less than 1, room_min_size is less than 1 or room_max_size is less
+        than room_min_size.
+
+    Examples:
+        >> player = Entity(0, 0, "@", (255, 255, 255)) \n
+        >> dungeon = generate_dungeon(10, 5, 10, 80, 50, player) \n
+        >> print(dungeon_map.width, dungeon_map.height) \n
+        >> 80 50
     """
+
+    if max_rooms < 1:
+        raise ValueError("Maximum number of rooms must be greater than 0.")
+    if room_min_size < 1:
+        raise ValueError("Minimum room size must be greater than 0.")
+    if room_max_size < room_min_size:
+        raise ValueError("Maximum room size must be greater than or equal to minimum room size.")
+
     dungeon = GameMap(map_width, map_height)
 
-    room_1 = RectangularRoom(x=20, y=15, width=10, height=15)
-    room_2 = RectangularRoom(x=35, y=15, width=10, height=15)
+    rooms: List[RectangularRoom] = []
 
-    dungeon.tiles[room_1.inner] = tile_types.floor
-    dungeon.tiles[room_2.inner] = tile_types.floor
+    for room in range(max_rooms):
+        room_width = random.randint(room_min_size, room_max_size)
+        room_height = random.randint(room_min_size, room_max_size)
 
-    for x, y in tunnel_between(room_1.center, room_2.center):
-        dungeon.tiles[x, y] = tile_types.floor
+        x = random.randint(0, dungeon.width - room_width - 1)
+        y = random.randint(0, dungeon.height - room_height - 1)
+
+        # Create a new rectangular room with the dimensions (random width and height and random position).
+        new_room = RectangularRoom(x, y, room_width, room_height)
+
+        # Iterate through the other rooms and see if they intersect with the current room. If there are no
+        #   intersections then the room is valid.
+        # NOTE: This is runtime safe as, if there are no rooms which can fit within the map,
+        #   the loop will eventually stop.
+
+        if any(new_room.intersects(r) for r in rooms):
+            continue  # This room intersects -> continue (skip the rest of the loop) to the next attempt.
+
+        # Set the room's inner tiles to be floor.
+        dungeon.tiles[new_room.inner] = tile_types.floor
+
+        if len(rooms) == 0:
+            # The first room, where the player starts
+            player.x, player.y = new_room.center
+        else:
+            # All rooms after the first.
+            # Dig a tunnel between this room and the previous one.
+            for x, y in tunnel_between(rooms[-1].center, new_room.center):
+                dungeon.tiles[x, y] = tile_types.floor
+
+        # Finally, append the new room to the list.
+        rooms.append(new_room)
 
     return dungeon

@@ -6,8 +6,7 @@ from typing import Optional
 
 import tcod.event
 
-# noinspection PyUnresolvedReferences
-from commands.actions import Action, MovementAction, EscapeAction, UndoAction
+from commands.actions import *
 
 
 class EventHandler(tcod.event.EventDispatch[Action]):
