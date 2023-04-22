@@ -30,11 +30,9 @@ class GameMap:
         Returns:
             None
         """
-        self.width = width
-        self.height = height
 
+        self.width, self.height = width, height
         self.entities = set(entities)
-
         self.tiles = np.full((width, height), fill_value=tile_types.wall, order="F")
 
         self.visible = np.full((width, height), fill_value=False, order="F")  # Tiles the player can currently see
@@ -52,7 +50,7 @@ class GameMap:
             Optional[Entity]: The blocking entity at the given location, if one exists.
             None: If no blocking entity is found at the given location.
         """
-        
+
         # TODO: Modify this so that we only check the entities within a given radius as the game map may become large
         for entity in self.entities:
             if entity.blocks_movement and entity.x == location_x and entity.y == location_y:
@@ -87,13 +85,12 @@ class GameMap:
         Returns:
             None
         """
-        console.rgb[0:self.width, 0:self.height] = np.select(
+        console.tiles_rgb[0: self.width, 0: self.height] = np.select(
             condlist=[self.visible, self.explored],
             choicelist=[self.tiles["light"], self.tiles["dark"]],
             default=tile_types.SHROUD
         )
 
         for entity in self.entities:
-            # Only render entities that are in the visible area.
             if self.visible[entity.x, entity.y]:
                 console.print(x=entity.x, y=entity.y, string=entity.char, fg=entity.color)

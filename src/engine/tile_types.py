@@ -7,7 +7,7 @@ This module provides the data structure and helper functions for managing tiles 
 
 from typing import Tuple
 
-import numpy as np
+import numpy as np  # type: ignore
 
 # Tiles graphics structured type compatible with Console.rgb
 graphic_dt = np.dtype(
@@ -21,8 +21,8 @@ graphic_dt = np.dtype(
 # Tile struct / datatype used for statically defined tile data.
 tile_dt = np.dtype(
     [
-        ("walkable", np.bool_),  # True if this tile can be walked over
-        ("transparent", np.bool_),  # True if this tile doesn't block FOV
+        ("walkable", bool),  # True if this tile can be walked over
+        ("transparent", bool),  # True if this tile doesn't block FOV
         ("dark", graphic_dt),  # Graphics for when this tile is not in FOV
         ("light", graphic_dt),  # Graphics for when this tile is in FOV
     ]
@@ -31,8 +31,8 @@ tile_dt = np.dtype(
 
 def new_tile(
         *,  # Enforce the use of keywords, so that parameter order doesn't matter
-        walkable: bool,
-        transparent: bool,
+        walkable: int,
+        transparent: int,
         dark: Tuple[int, Tuple[int, int, int], Tuple[int, int, int]],
         light: Tuple[int, Tuple[int, int, int], Tuple[int, int, int]],
 ) -> np.ndarray:

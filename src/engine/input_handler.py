@@ -1,7 +1,6 @@
 """
 The input handler file.
 """
-
 from typing import Optional
 
 import tcod.event
@@ -15,7 +14,6 @@ class EventHandler(tcod.event.EventDispatch[Action]):
         raise SystemExit()
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
-
         action: Optional[Action] = None
 
         key = event.sym
@@ -38,9 +36,6 @@ class EventHandler(tcod.event.EventDispatch[Action]):
             action = BumpAction(dx=-1, dy=0)
         elif key == tcod.event.K_d:
             action = BumpAction(dx=1, dy=0)
-
-        elif key == tcod.event.K_z:
-            action = UndoAction()
 
         elif key == tcod.event.K_ESCAPE:
             action = EscapeAction()

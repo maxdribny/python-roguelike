@@ -1,3 +1,4 @@
+"""Author: Maxim Dribny 2023"""
 import copy
 
 import tcod
@@ -19,37 +20,30 @@ def main():
     :return: None
     """
 
-    # region Game Constants
+    # region: Game Constants
     # These constants are used to define the size of the game window and the size of the map.
-
     screen_width = 80
     screen_height = 50
 
     map_width = 80
     map_height = 45
+
     room_max_size = 10
     room_min_size = 6
     max_rooms = 30
 
     max_monsters_per_room = 2
-
     # endregion
 
-    # region Tile set and Graphics Options
-
+    # region: Tile set and Graphics Options
     tileset = tcod.tileset.load_tilesheet(
         f"{RESOURCE_PATH}dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD
     )
+    # endregion:
 
-    # endregion
-
-    # Create an event handler which will be used by the engine to handle the events of the game
     event_handler = EventHandler()
 
-    # Added support for entities instead of hard coded player and npc
     player = copy.deepcopy(entity_factories.player)
-
-    entities = {player}
 
     # Generate a dungeon map
     game_map = generate_dungeon(
@@ -59,10 +53,9 @@ def main():
         map_width=map_width,
         map_height=map_height,
         max_monsters_per_room=max_monsters_per_room,
-        player=player
+        player=player,
     )
 
-    # Create the engine that will handle the core game loop
     engine = Engine(event_handler=event_handler, game_map=game_map, player=player)
 
     with tcod.context.new_terminal(
@@ -78,7 +71,7 @@ def main():
 
             events = tcod.event.wait()
 
-            engine.handle_events(events=events)
+            engine.handle_events(events)
 
 
 if __name__ == "__main__":

@@ -7,10 +7,8 @@ from __future__ import annotations
 import copy
 from typing import Tuple, TypeVar, TYPE_CHECKING
 
-from engine.game_map import GameMap
-
 if TYPE_CHECKING:
-    pass
+    from engine.game_map import GameMap
 
 T = TypeVar("T", bound="Entity")
 
@@ -20,13 +18,15 @@ class Entity:
     A generic object to represent players, enemies, items, etc.
     """
 
-    def __init__(self,
-                 x: int = 0,
-                 y: int = 0,
-                 char: str = "?",
-                 color: Tuple[int, int, int] = (255, 255, 255),
-                 name: str = "<Unnamed>",
-                 blocks_movement: bool = False):
+    def __init__(
+            self,
+            x: int = 0,
+            y: int = 0,
+            char: str = "?",
+            color: Tuple[int, int, int] = (255, 255, 255),
+            name: str = "<Unnamed>",
+            blocks_movement: bool = False,
+    ):
         self.x = x
         self.y = y
         self.char = char
