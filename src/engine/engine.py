@@ -12,6 +12,10 @@ from entities.entity import Entity
 
 
 class Engine:
+    """
+    The main game engine class that holds and operates on the game state.
+    """
+
     def __init__(self, event_handler: EventHandler, game_map: GameMap, player: Entity):
         """
         Initializes a new Engine object.
