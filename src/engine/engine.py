@@ -35,7 +35,8 @@ class Engine:
         Handle the turns of all entities that are not the player.
         """
         for entity in self.game_map.entities - {self.player}:
-            print(f"The {entity.name} wonders when it will get to take a real turn.")
+            pass
+            # print(f"The {entity.name} wonders when it will get to take a real turn.")
 
     def update_fov(self) -> None:
         """Recompute the visible area based on the players point of view."""

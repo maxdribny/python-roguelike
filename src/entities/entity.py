@@ -63,9 +63,9 @@ class Entity:
             self.game_map = game_map
             game_map.entities.add(self)
 
-    # def move(self, dx: int, dy: int) -> None:
-    #     """
-    #     Move the entity by a given amount.
-    #     """
-    #     self.x += dx
-    #     self.y += dy
+    def move(self, dx: int, dy: int) -> None:
+        """
+        Move the entity by a given amount.
+        """
+        self.x += dx
+        self.y += dy
