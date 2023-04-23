@@ -5,7 +5,6 @@ import tcod
 
 from engine.dungeon_gen import generate_dungeon
 from engine.engine import Engine
-from engine.input_handler import EventHandler
 from entities import entity_factories
 
 RESOURCE_PATH = "..\\assets\\"
@@ -41,22 +40,22 @@ def main():
     )
     # endregion:
 
-    event_handler = EventHandler()
-
     player = copy.deepcopy(entity_factories.player)
 
+    engine = Engine(player=player)
+
     # Generate a dungeon map
-    game_map = generate_dungeon(
+    engine.game_map = generate_dungeon(
         max_rooms=max_rooms,
         room_min_size=room_min_size,
         room_max_size=room_max_size,
         map_width=map_width,
         map_height=map_height,
         max_monsters_per_room=max_monsters_per_room,
-        player=player,
+        engine=engine
     )
 
-    engine = Engine(event_handler=event_handler, game_map=game_map, player=player)
+    engine.update_fov()
 
     with tcod.context.new_terminal(
             screen_width,
@@ -69,9 +68,7 @@ def main():
         while True:
             engine.render(console=root_console, context=context)
 
-            events = tcod.event.wait()
-
-            engine.handle_events(events)
+            engine.event_handler.handle_events()
 
 
 if __name__ == "__main__":

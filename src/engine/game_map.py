@@ -11,6 +11,7 @@ from tcod.console import Console
 from engine import tile_types
 
 if TYPE_CHECKING:
+    from engine.engine import Engine
     from entities.entity import Entity
 
 
@@ -19,7 +20,7 @@ class GameMap:
     A generic map. Should be subclassed or used as a component.
     """
 
-    def __init__(self, width: int, height: int, entities: Iterable[Entity] = ()):
+    def __init__(self, engine: Engine, width: int, height: int, entities: Iterable[Entity] = ()):
         """
         Initializes a new GameMap object with specified width and height.
 
@@ -30,7 +31,7 @@ class GameMap:
         Returns:
             None
         """
-
+        self.engine = engine
         self.width, self.height = width, height
         self.entities = set(entities)
         self.tiles = np.full((width, height), fill_value=tile_types.wall, order="F")

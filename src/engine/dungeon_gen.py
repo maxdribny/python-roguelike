@@ -10,7 +10,7 @@ from engine.game_map import GameMap
 from entities import entity_factories
 
 if TYPE_CHECKING:
-    from entities.entity import Entity
+    from engine.engine import Engine
 
 
 class RectangularRoom:
@@ -132,7 +132,7 @@ def generate_dungeon(
         map_width: int,
         map_height: int,
         max_monsters_per_room: int,
-        player: Entity,
+        engine: Engine
 ) -> GameMap:
     """
     Generate a new dungeon map with randomly placed rectangular rooms and tunnels connecting them.
@@ -148,7 +148,7 @@ def generate_dungeon(
         map_width (int): The width of the dungeon map.
         map_height (int): The height of the dungeon map.
         max_monsters_per_room (int): The maximum number of monsters that can be placed in a room.
-        player (Entity): The player entity.
+        engine (Engine): The game engine which this entity belongs to.
 
     Returns:
         GameMap: The generated dungeon map with rooms and tunnels.
@@ -171,7 +171,8 @@ def generate_dungeon(
     if room_max_size < room_min_size:
         raise ValueError("Maximum room size must be greater than or equal to minimum room size.")
 
-    dungeon = GameMap(map_width, map_height, entities=[player])
+    player = engine.player
+    dungeon = GameMap(engine, map_width, map_height, entities=[player])
 
     rooms: List[RectangularRoom] = []
 
@@ -198,7 +199,7 @@ def generate_dungeon(
 
         if len(rooms) == 0:
             # The first room, where the player starts
-            player.x, player.y = new_room.center
+            player.place(*new_room.center, dungeon)
         else:
             # All rooms after the first.
             # Dig a tunnel between this room and the previous one.
