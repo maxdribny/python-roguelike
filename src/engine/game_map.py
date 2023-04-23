@@ -3,12 +3,13 @@ This module contains the GameMap class.
 """
 from __future__ import annotations
 
-from typing import Iterable, Optional, TYPE_CHECKING
+from typing import Iterable, Iterator, Optional, TYPE_CHECKING
 
 import numpy as np  # type: ignore
 from tcod.console import Console
 
 from engine import tile_types
+from entities.entity import Actor
 
 if TYPE_CHECKING:
     from engine.engine import Engine
@@ -39,6 +40,17 @@ class GameMap:
         self.visible = np.full((width, height), fill_value=False, order="F")  # Tiles the player can currently see
         self.explored = np.full((width, height), fill_value=False, order="F")  # Tiles the player has seen before
 
+    @property
+    def actors(self) -> Iterator[Actor]:
+        """
+        Iterate over the maps living actors.
+        :return:
+        """
+        yield from (
+            entity for entity in self.entities
+            if isinstance(entity, Actor) and entity.is_alive
+        )
+
     def get_blocking_entity_at_location(self, location_x: int, location_y: int) -> Optional[Entity]:
         """
         Returns the blocking entity at the given location, if one exists.
@@ -56,6 +68,20 @@ class GameMap:
         for entity in self.entities:
             if entity.blocks_movement and entity.x == location_x and entity.y == location_y:
                 return entity
+
+        return None
+
+    def get_actor_at_location(self, x: int, y: int) -> Optional[Actor]:
+        """
+        Get the actor at a specific location.
+        :param x:
+        :param y:
+        :return:
+        """
+        # TODO: Modify this so that we only check the entities within a given radius as the game map may become large
+        for actor in self.actors:
+            if actor.x == x and actor.y == y:
+                return actor
 
         return None
 
